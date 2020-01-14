@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% block head %}
+    {% endblock %}
+    <style>
+    body {
+    background: #DAE0E6 !important;
+    margin-top: 75px !important;
+    }
+</style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light" style="background-color: #efedf2 !important;">
+    <div class="container">
+        <a class="navbar-brand" href="/">OrangeIT</a>
+        <button class="navbar-toggler" type=button" data-toggle="collapse" data-taret="navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
+                aria-expanded="false" aria-label="Toggle naigation"><span class="nabbar-toggle-icon"></span></button>
+        <form class="mx-2 my-auto d-line w-100" style="margin-left: 100px !important; margin-rightL 100px !important;">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+        </form>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav mi-auto">
+                {% if current_user.is_authenticated %}
+                    <a class="nav-item btn btn-primary" href="{{url_for('new_post')}}">New Post</a>
+                    <a class="nav-item btn btn-outline-primary mx-2" href="{{url_for('account')}}">Account</a>
+                    <a class="nav-item btn btn-outline-primary mx-2" href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a class="nav-item btn btn-outline-primary mx-2" href="{{ url_for('login') }}">Login</a>
+                    <a class="nav-item btn btn-primary" href="{{url_for('register')}}">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+ <main role="main" class="container">
+      <div class="row">
+        <div class="col-md-8">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+          {% block body %}
+
+    {% endblock %}
+        </div>
+        <div class="col-md-4 offset-sm-8">
+          <div class="content-section">
+            <h3>Our Sidebar</h3>
+            <p class='text-muted'>You can put any information here you'd like.
+              <ul class="list-group">
+                <li class="list-group-item list-group-item-light">Latest Posts</li>
+                <li class="list-group-item list-group-item-light">Announcements</li>
+                <li class="list-group-item list-group-item-light">Calendars</li>
+                <li class="list-group-item list-group-item-light">etc</li>
+              </ul>
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
