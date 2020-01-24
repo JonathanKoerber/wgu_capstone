@@ -19,14 +19,14 @@ class User(db.Model, UserMixin):
     posts = db.relationship('Post', backref='author', lazy=True)
 
     def get_reset_token(self, expires_sec=1800):
-        s = TimedSerializer(app.config['SECRET_KEY'], expires_sec, None)
+        s = Serializer(app.config['SECRET_KEY'], expires_sec)
         return s.dumps({'user_id': self.id}).decode('utf-8')
 
     @staticmethod
     def verify_reset_token(token):
-        s = TimedSerializer(app.config['SECRET_KEY'])
+        s = Serializer(app.config['SECRET_KEY'])
         try:
-            user_id = s.load(token)['user_id']
+            user_id = s.loads(token)['user_id']
         except:
             return None
         return User.query.get(user_id)
