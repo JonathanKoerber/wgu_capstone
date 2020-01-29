@@ -26,6 +26,12 @@ h1{
   font-weight: 500;
 }
 
+.content-row{
+   background: #DAE0E6 !important
+   display: flex;
+   flex-direction: row;
+}
+
 .content-section {
   background: #ffffff;
   padding: 10px 20px;
