@@ -1,3 +1,7 @@
+import dictionary_profile
+#import os
+
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -13,6 +17,15 @@ class Config(object):
     #                                                        db_host,
     #                                                        db_db)
 
+    MAIL_USERNAME = dictionary_profile.email_profile.get('EMAIL_USER')
+    MAIL_PASSWORD = dictionary_profile.email_profile.get('EMAIL_PASS')
+
+    SECRET_KEY = dictionary_profile.app_key.get('SECRET_KEY')
+    SQLALCHEMY_DATABASE_URI = dictionary_profile.app_key.get('DB_URI')
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+
 
 class ProductionConfig(Config):
     pass
@@ -20,3 +33,4 @@ class ProductionConfig(Config):
 
 class DevelopmentConfig(Config):
     DEBUG = True
+

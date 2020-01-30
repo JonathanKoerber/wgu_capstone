@@ -1,29 +1,39 @@
 
-import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from orange_it.config import DevelopmentConfig
+from orange_it.config import DevelopmentConfig, Config
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 
+
 # todo change db using environ var
-app = Flask(__name__)
-app.config.from_object(DevelopmentConfig)
-app.config['SECRET_KEY'] = '838a2fbb0c5f33c28d77e8f9c69932ba'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+login_manager = LoginManager()
+login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
-app.config['MAIL_SERVER'] = 'smtp.protonmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_USER')
-app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASS')
-mail = Mail(app)
+mail = Mail()
 
 
-from orange_it import routes
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    app.config.from_object(DevelopmentConfig)
+
+    db.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+    mail.init_app(app)
+
+    from orange_it.users.routes import users
+    from orange_it.posts.routes import posts
+    from orange_it.main.routes import main
+    from orange_it.errors.handlers import errors
+    app.register_blueprint(users)
+    app.register_blueprint(posts)
+    app.register_blueprint(main)
+    app.register_blueprint(errors)
+
+    return app
