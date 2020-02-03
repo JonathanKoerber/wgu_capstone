@@ -15,12 +15,12 @@ moderator_thread=db.Table('moderator_thread',
                              db.Column('thread_id', db.Integer, db.ForeignKey('thread.id'), nullable=False),
                              db.PrimaryKeyConstraint('moderator_id', 'thread_id'))
 
-
+# connects thread and rule
 thread_rule = db.Table('thread_rule',
                              db.Column('rule_id', db.Integer, db.ForeignKey('rule.id'), nullable=False),
                              db.Column('thread_id', db.Integer, db.ForeignKey('thread.id'), nullable=False),
                              db.PrimaryKeyConstraint('moderator_id', 'thread_id'))
-
+# connects thread and owner
 thread_owner = db.Table('thread_owner',
                              db.Column('owner_id', db.Integer, db.ForeignKey('owner.id'), nullable=False),
                              db.Column('thread_id', db.Integer, db.ForeignKey('thread.id'), nullable=False),
@@ -109,7 +109,7 @@ class Thread(db.Model):
     title = db.Column(db.String(100), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, defult=datetime.utcnow)
     owner = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    rule = db.relationship('Rule', backref='rule.thread', lazy=True)
+    rule = db.relationship('Rule',secondary=thread_rule, backref='rule.thread', lazy=True)
 
 
 class Rule(db.Model):
