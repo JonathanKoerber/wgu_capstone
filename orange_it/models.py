@@ -9,11 +9,22 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, TimedSer
 def load_user(user_id_):
     return User.query.get(int(user_id_))
 
-
-relationship_thread=db.Table('relationship_thread',
+# the id in the user object. Not sure if the Moderator will be ab
+moderator_thread=db.Table('moderator_thread',
                              db.Column('moderator_id', db.Integer, db.ForeignKey('moderator.id'), nullable=False),
                              db.Column('thread_id', db.Integer, db.ForeignKey('thread.id'), nullable=False),
                              db.PrimaryKeyConstraint('moderator_id', 'thread_id'))
+
+# connects thread and rule
+thread_rule = db.Table('thread_rule',
+                             db.Column('rule_id', db.Integer, db.ForeignKey('rule.id'), nullable=False),
+                             db.Column('thread_id', db.Integer, db.ForeignKey('thread.id'), nullable=False),
+                             db.PrimaryKeyConstraint('moderator_id', 'thread_id'))
+# connects thread and owner
+thread_owner = db.Table('thread_owner',
+                             db.Column('owner_id', db.Integer, db.ForeignKey('owner.id'), nullable=False),
+                             db.Column('thread_id', db.Integer, db.ForeignKey('thread.id'), nullable=False),
+                             db.PrimaryKeyConstraint('owner_id', 'thread_id'))
 
 
 class User(db.Model, UserMixin):
@@ -24,7 +35,6 @@ class User(db.Model, UserMixin):
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     posts = db.relationship('Post', backref='author', lazy=True)
-    threads = db.relationship('Post', backref='owner', lazy=True)
 
     def get_reset_token(self, expires_sec=1800):
         s = Serializer(current_app.config['SECRET_KEY'], expires_sec)
@@ -45,10 +55,10 @@ class User(db.Model, UserMixin):
 
 #todo moderator
 class Moderator(User):
-    thread_id = db.relationship('Thread', secondary=relationship_thread, backref='moderator')
+    thread_id = db.relationship('Thread', secondary=moderator_thread, backref='moderator_id')
 
     def __repr__(self):
-        return f"Moderator('{self.username}', '{self.image_file}"
+        return f"Moderator('{self.username}', '{self.image_file})'"
 
     def remove_post(self):
         pass
@@ -58,12 +68,20 @@ class Moderator(User):
 
 
 class Owner(Moderator):
-    pass
 
-    def remover_user(self):
+    def __repr__(self):
+        return f"Owner('{self.username}', '{self.image_file}')"
+
+    def create_rule(self):
+        pass
+
+    def confirm_removal(self):
         pass
 
     def invite_moderator(self):
+        pass
+
+    def trasnfer_owner(self):
         pass
 
 
@@ -89,9 +107,9 @@ class Comment(Post):
 class Thread(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     title = db.Column(db.String(100), nullable=False)
-    date_posted = db.Column(db.DateTime, nullable=False, defult=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    rule = db.relationship('Post', backref='', lazy=True)
+    date_created = db.Column(db.DateTime, nullable=False, defult=datetime.utcnow)
+    owner = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    rule = db.relationship('Rule',secondary=thread_rule, backref='rule.thread', lazy=True)
 
 
 class Rule(db.Model):
@@ -99,3 +117,4 @@ class Rule(db.Model):
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.Date, nullable=False, defult=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
+    thread_id = db.relationship('Thread', secondary=thread_rule, backref='thread_id')
