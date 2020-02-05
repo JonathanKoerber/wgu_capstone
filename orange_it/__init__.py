@@ -11,6 +11,7 @@ from flask_migrate import Migrate
 # todo change db using environ var
 
 db = SQLAlchemy()
+migrate = Migrate()
 bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'users.login'
@@ -24,7 +25,7 @@ def create_app(config_class=Config):
     app.config.from_object(DevelopmentConfig)
 
     db.init_app(app)
-    migrate = Migrate(app, db)
+    migrate.init_app(app, db)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
