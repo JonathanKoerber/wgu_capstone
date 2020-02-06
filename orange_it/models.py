@@ -101,7 +101,7 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    #comments = db.relationship('Comment', backref='post_comment', lazy=True)
+    # comments = db.relationship('Comment', backref='post_comment', lazy=True)
     up_votes = db.Column(db.Integer, nullable=True)
     down_votes = db.Column(db.Integer, nullable=True)
 
@@ -115,10 +115,11 @@ class Post(db.Model):
 
 # todo many to many relationship with
 class Thread(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    owner_id = db.Column(db.Integer, db.ForeignKey('owner.id'), nullable = False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('owner.id'), nullable=False)
     moderator_id = db.relationship('Moderator', secondary=moderator_thread, backref="thread")
     rule = db.relationship('Rule', backref='rule.thread_id', lazy=True)
 
