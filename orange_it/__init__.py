@@ -35,12 +35,12 @@ def create_app(config_class=Config):
     from orange_it.main.routes import main
     from orange_it.errors.handlers import errors
     from orange_it.rules.routes import rules
-    from orange_it.thread.routes import thread
+    from orange_it.thread.routes import threads
     app.register_blueprint(users)
     app.register_blueprint(posts)
     app.register_blueprint(main)
     app.register_blueprint(errors)
     app.register_blueprint(rules)
-    app.register_blueprint(thread)
+    app.register_blueprint(threads)
 
     return app

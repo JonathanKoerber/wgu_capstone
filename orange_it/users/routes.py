@@ -21,6 +21,7 @@ def register():
         db.session.commit()
         flash(f'Your account has been created you can now log in!', 'success')
         return redirect(url_for('users.login'))
+    # todo this is not redirecting to login screen :(
 
     return render_template('auth/reg.html', title='Register', form=form)
 
