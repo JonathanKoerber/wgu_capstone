@@ -8,57 +8,84 @@
 
 {% block body %}
 <!-- todo this need to have the title of the thread  and add a side bar for the mentors, rules and description-->
- <main role="main" class="container">
-      <div class="row">
-          <div class="col-md-8">
-<div class="container">
-    <h2 class="navbar-brand thread-headding">{{ thread.title }}</h2>
-</div>
-{% for post in posts.items %}
-
-<article class="media content-section">
-    <img class="rounded-circle article-img"
-         src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
-    <div class="media-body">
-        <div class="article-metadata">
-            <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
-            <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="container">
+                <h2 class="navbar-brand thread-heading col-md-8">{{ thread.title }}</h2>
+            </div>
+            {% for post in posts.items %}
+            <article class="media content-section">
+                <img class="rounded-circle article-img"
+                     src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{
+                            post.author.username }}</a>
+                        <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title
+                        }}</a></h2>
+                    <p class="article-content">{{ post.content }}</p>
+                </div>
+            </article>
+            {% endfor %}
         </div>
-        <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title }}</a></h2>
-        <p class="article-content">{{ post.content }}</p>
-    </div>
-</article>
-<article class="midia content-section">
-<!--    todo add forms thread rules moderators and user-->
-
-</article>
-{% endfor %}
-{% for page_num in posts.iter_pages(left_edge=1,  right_edge=1, left_current=1, right_current=2) %}
-{% if page_num %}
-{% if posts.page==page_num %}
-<a class="btn btn-info mb-4" href="{{ url_for('main.index', page=page_num) }}">{{ page_num }}</a>
-{% else %}
-<a class="btn btn-outline-info mb-4" href="{{ url_for('main.index', page=page_num) }}">{{ page_num }}</a>
-{% endif %}
-{% else %}
-...
-{% endif %}
-{% endfor %}
-          </div>
         <div class="col-md-4">
-          <div class="content-section">
-            <h3>{{ thread.title }} </h3>
-              <p class='text-muted'> {{ thread.description }}</p>
-              <ul class="list-group">
-                 {% for rule in rules.items %}
+            <!--            todo create a post section -->
+            <div class="content-section">
+                <div class="row">
+                    <img class="rounded-circle article-img"
+                         src="{{ url_for('static', filename='profile_pics/' + current_user.image_file)}}"/>
+                    <h3>{{ current_user.username }}</h3>
+                </div>
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('posts.new_thread_post', thread_id=thread.id)}}">Create
+                    Post</a>
+            </div>
+            <!-- thread rules             -->
+            <div class="content-section">
+                <h3>{{ thread.title }} </h3>
+                <p class='text-muted'> {{ thread.description }}</p>
+                <ul class="list-group">
+                    {% for rule in rules%}
+                    <!--                  todo need on click event to display thread rule    -->
                     <li class="list-group-item list-group-item-light">{{ rule.title }}</li>
-                {% end for %}
-              </ul>
-              <a class="btn btn-outline-info mb-4" href="{{ url_for(thread_"
-          </div>
+                    {% endfor %}
+                </ul>
+                <!--              todo display if current_user.id is thread owner -->
+                {% if current_user.id == thread.user_id %}
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('thread.update_thread', thread_id=thread.id) }}">Update
+                    Thread</a>
+                {% endif %}
+            </div>
+            <!--            todo moderator section -->
+            <div class="content-section">
+                <h3>Moderators</h3>
+                <ul class="list-group">
+                    {% for rule in rules %}
+                    <li class="list-group-item list-group-item-light">{{ rule.title }}</li>
+                    {% endfor %}
+                </ul>
+                {% if current_user.id == thread.user_id %}
+                <a class="btn btn-outline-info mb-4" href="#">Add Moderator</a>
+                {% endif %}
+            </div>
         </div>
-        </div>
-      </div>
-    </main>
+    </div>
+    </div>
+
+    {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+    {% if page_num %}
+    {% if posts.page==page_num %}
+    <a class="btn btn-info mb-4" href="{{ url_for('main.index', page=page_num) }}">{{ page_num }}</a>
+    {% else %}
+    <a class="btn btn-outline-info mb-4" href="{{ url_for('main.index', page=page_num) }}">{{ page_num }}</a>
+    {% endif %}
+    {% else %}
+    ...
+    {% endif %}
+    {% endfor %}
+    </div>
+</main>
 
 {% endblock %}

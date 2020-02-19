@@ -27,6 +27,26 @@ def new_post(thread_id=None):
     return render_template('create_post.html', title='New Post', form=form, legend='New Post')
 
 
+@posts.route('/posts/thread/<thread_id>', methods=['POST', 'GET'])
+@login_required
+def new_thread_post(thread_id):
+    form = PostForm()
+    if form.validate_on_submit():
+        if thread_id is not None:
+            post = Post(title=form.title.data, content=form.content.data, author=current_user, thread_id=thread_id)
+            db.session.add(post)
+            db.session.commit()
+            flash('Your post has been created!', 'success')
+            return redirect(url_for('thread.thread', thread_id=thread_id))
+        else:
+            post = Post(title=form.title.data, content=form.content.data, author=current_user)
+            db.session.add(post)
+            db.session.commit()
+            flash('Your post has been created!', 'success')
+            return redirect(url_for('main.index'))
+    return render_template('create_post.html', title='New Post', form=form, legend='New Post')
+
+
 @posts.route('/post/<int:post_id>')
 def post(post_id):
     post = Post.query.get_or_404(post_id)

@@ -1,23 +1,24 @@
 from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from flask_login import current_user, login_required
 from orange_it import db
-from orange_it.models import Rule
+from orange_it.models import Rule, Thread
 from orange_it.rules.forms import (RuleForm)
 
 rules = Blueprint('rules', __name__)
 
 
-@rules.route('/rule/new', methods=['POST', 'GET'])
+@rules.route('/rule/new/<int:thread_id>', methods=['POST', 'GET'])
 @login_required
-def new_rule():
+def new_rule(thread_id):
     form = RuleForm()
+    thread = Thread.query.get_or_404(thread_id)
     if form.validate_on_submit():
-        rule = Rule(title=form.title.data, content=form.content.data, author=current_user)
+        rule = Rule(title=form.title.data, content=form.content.data, thread_id=thread_id)
         db.session.add(rule)
         db.session.commit()
-        flash('A rule has been created for <!', 'success')
-        return redirect(url_for('main.index'))
-    return render_template('create_post.html', title='New Post', form=form, legend='New Post')
+        flash('A rule has been created for thread '+thread.title+'.', 'success')
+        return redirect(url_for('thread.update_thread', thread_id=thread.id) )
+    return render_template('new_rule.html', title='Add a New Rule', form=form, legend='New Post')
 
 
 @rules.route('/rule/<int:rule_id>')

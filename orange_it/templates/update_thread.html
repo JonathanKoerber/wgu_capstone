@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block head %}
+<style>
+    body {
+    background: #DAE0E6 !important;
+    margin-top: 75px !important;
+    }
+
+</style>
+{% endblock %}
+{% block body %}
+
+
+<main role="main" class="container">
+    <div class="row">
+        <div class="container row col-md-8 card">
+            <div class="media">
+                <div class="media-body">
+                    <h2 class="account-heading">{{ thread.title }}</h2>
+                    <p class="text-secondary">{{ thread }}</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    <!-- adding csrf token-->
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Update Tread Fields</legend>
+                        <div class="form-group">
+                            {{ form.title.label(class="form-control-label") }}
+                            {% if form.title.errors %}
+                            {{ form.title(class="form-control form-control-lg is-invalid")}}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                <span> {{ error }}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.title(class="form-control form-control-lg") }}
+                            {% endif%}
+                        </div>
+                        <div class="form-group">
+                            {{ form.description.label(class="form-control-label") }}
+                            {% if form.description.errors %}
+                            {{ form.description(class="form-control form-control-lg is-invalid")}}
+                            <div class="invalid-feedback">
+                                {%for error in form.description.errors %}
+                                <span> {{error}}</span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            {{ form.description(class="form-control form-control-lg") }}
+                            {% endif %}
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-section">
+                <h3>{{ thread.title }} </h3>
+                <p class='text-muted'> {{ thread.description }}</p>
+                <ul class="list-group">
+                    {% for rule in rules %}
+                    <!--                  todo need on click event to display thread rule    -->
+                    <li class="list-group-item list-group-item-light">{{ rule.title }}</li>
+                    {% endfor %}
+                </ul>
+                <!--              todo display if current_user.id is thread owner -->
+                {% if current_user.id == thread.user_id %}
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('rules.new_rule', thread_id=thread.id) }}">Add Rule</a>
+                {% endif %}
+            </div>
+            <!--            todo moderator section -->
+            <div class="content-section">
+                <h3>Moderators</h3>
+                <ul class="list-group">
+                    {% for moderator in moderators %}
+                    <li class="list-group-item list-group-item-light">{{ moderator.title }}</li>
+                    {% endfor %}
+                </ul>
+                {% if current_user.id == thread.user_id %}
+                <a class="btn btn-outline-info mb-4" href="#">Add Moderator</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

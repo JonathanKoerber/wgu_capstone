@@ -42,6 +42,12 @@ class User(db.Model, UserMixin):
 
 class Owner(User):
 
+    def __init__(self, user):
+        id = user.id
+        username = user.username
+        email = user.email
+        owner = user.owner
+
     def create_rule(self):
         pass
 
@@ -51,6 +57,8 @@ class Owner(User):
     def invite_moderator(self):
         pass
 
+    def __repr__(self):
+        return f"Owner('{self.username}', '{self.email}', '{self.image_file}')"
 
 
 class Moderator(db.Model):
@@ -68,7 +76,6 @@ class Moderator(db.Model):
     def tag_user_removal(self):
         pass
 
-# todo add column to connect Post with thread. add comment
 
 class Post(db.Model):
 
@@ -111,7 +118,6 @@ class Thread(db.Model):
     moderator = db.relationship('Moderator', backref='moderator_id', lazy=True)
     rule = db.relationship('Rule', backref='rule', lazy=True)
     posts = db.relationship('Post', backref='posts', lazy=True)
-
 
 
 class Rule(db.Model):
