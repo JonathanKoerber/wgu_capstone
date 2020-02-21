@@ -49,7 +49,22 @@
                 <ul class="list-group">
                     {% for rule in rules%}
                     <!--                  todo need on click event to display thread rule    -->
-                    <li class="list-group-item list-group-item-light">{{ rule.title }}</li>
+                    <li class="list-group-item list-group-item-light">
+                        <div class="card-header" role="tab" id="heading + {{ rule.id }}">
+                            <a class="collapsed" data-toggle="collapse" data-parent="#accordionEx" href="#{{ rule.id }}"
+                               aria-expanded="false" aria-controls="{{ rule.id }}">
+                                <h5 class="mb-0">
+                                    {{ rule.title }} <i class="fas fa-angle-down rotate-icon"></i>
+                                </h5>
+                            </a>
+                        </div>
+                        <div id="{{ rule.id }}" class="collapse" role="tabpanel" aria-labelledby="heading + {{ rule.id }}"
+                             data-parent="#accordionEx">
+                            <div class="card-body">
+                                <p>{{ rule.content }}</p>
+                            </div>
+                        </div>
+                    </li>
                     {% endfor %}
                 </ul>
                 <!--              todo display if current_user.id is thread owner -->
@@ -62,8 +77,8 @@
             <div class="content-section">
                 <h3>Moderators</h3>
                 <ul class="list-group">
-                    {% for rule in rules %}
-                    <li class="list-group-item list-group-item-light">{{ rule.title }}</li>
+                    {% for mod in moderators %}
+                    <li class="list-group-item list-group-item-light">{{ mod.username }}</li>
                     {% endfor %}
                 </ul>
                 {% if current_user.id == thread.user_id %}
