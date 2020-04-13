@@ -1,36 +1,27 @@
 {% extends 'base.html'%}
 
 {% block head %}
-<title>Home Page</title>
+<title xmlns="http://www.w3.org/1999/html">Home Page</title>
 
 <!--<link rel="stylesheet" href="{{url_for('static', filename='style.css') }}"-->
 {% endblock %}
 {% block search %}
-<!--  <form class="mx-2 my-auto d-line w-100" style="margin-left: 100px !important; margin-rightL 100px !important;">-->
-<!--            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">-->
-<!--        </form>-->
-                    <div class="form-group">
-                        {% if form.search.errors %}
-                        {{ form.search(class="form-control form-control-lg is-invalid")}}
-                        <div class="invalid-feedback">
-                            {%for error in form.search.errors %}
-                            <span> {{error}}</span>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                        {{ form.search(class="form-control form-control-lg") }}
-                        {% endif %}
-                    </div>
-                    <div class="form-group">
-                    {{ form.submit(class="btn btn-outline-info") }}
-                    </div>
+
+<div class="navbar-nav mr-auto align-left">
+    <form class="form-inline" methon="GET" action="search">
+        <div class="form-group">
+            <input type="text" class="form-control" name="query" id="query">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
 {% endblock %}
 
 {% block body %}
 <main role="main" class="container">
     <div class="row">
         <div class="col-md-8">
-            {% for post in posts.items %}
+            {% for post in posts %}
             <article class="media content-section">
                 <img class="rounded-circle article-img"
                      src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
@@ -43,18 +34,29 @@
                     <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title
                         }}</a></h2>
                     <p class="article-content">{{ post.content }}</p>
-                    <div class="row">
-                        <img src="{{ url_for('static', filename='profile_pics/thumb-up.svg') }}" class="col-sm-1"/>
-                        <p class="article-content"  class="col-sm-1">{{post.up_votes}}</p>
-                        <img src="{{ url_for('static', filename='profile_pics/thumb-down.svg') }}"  class="col-sm-1"/>
-                        <p class="article-content" class="col-sm-1">{{post.up_votes}}</p>
+                    <div class="divider"></div>
+                    <div class="container row">
+                        <a  href="{{ url_for('posts.up_vote', post_id=post.id, thread_id='index')}}">
+                            <img src="{{ url_for('static', filename='profile_pics/thumb-up.svg') }}">
+                        </a>
+                            <p class="article-content" class="col-sm-1"> {{ post.votes | selectattr("vote", "equalto", True) | list | count }}</p>
+                        <a  href="{{ url_for('posts.down_vote', post_id=post.id, thread_id='index')}}">
+                        <img src="{{ url_for('static', filename='profile_pics/thumb-down.svg') }}"/>
+                        </a>
+                        <p class="article-content" class="col-sm-1">  <p> {{ post.votes | selectattr("vote", "equalto", False) | list | count }}</p></p>
+                        <a href="{{ url_for('posts.comment', post_id=post.id) }}">
+                            <img src="{{ url_for('static', filename='profile_pics/comment.svg')}}"/>
+                        </a>
+                        <p class="article-content" class="col-sm-1"> {{ post.comments | list | count }}</p>
                     </div>
                 </div>
             </article>
+
             {% endfor %}
         </div>
         <div class="col-md-4">
-            <!-- todo create a post section -->
+
+            {% if current_user.image_file: %}
             <div class="content-section">
                 <div class="row">
                     <img class="rounded-circle article-img"
@@ -63,35 +65,28 @@
                 </div>
                 <a class="btn btn-outline-info mb-4" href="{{ url_for('posts.new_post') }}">Create Post</a>
             </div>
+            {% endif %}
             <!--create thread-->
+            {% if current_user.is_authenticated %}
             <div class="content-section">
                 <h3>Build you own community</h3>
                 <a class="btn btn-outline-info mb-4" href="{{ url_for('thread.create_thread') }}">Create Thread</a>
             </div>
-            <!--           thread section todo error not displaying -->
+            {% else %}
+            <div class="content-section">
+                <h3>Log in to build you own community</h3>
+            </div>
+            {% endif %}
             <div class="content-section">
                 <h3>Thread Topics</h3>
                 <ul class="list-group">
                     {% for thread in threads %}
-                    <li class="list-group-item list-group-item-light"><a href="{{ url_for('thread.thread', thread_id=thread.id)}}">{{ thread.title }}</a></li>
+                    <li class="list-group-item list-group-item-light"><a
+                            href="{{ url_for('thread.thread', thread_id=thread.id)}}">{{ thread.title }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
-
-
-        {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-        {% if page_num %}
-        {% if posts.page==page_num %}
-        <a class="btn btn-info mb-4" href="{{ url_for('main.index', page=page_num) }}">{{ page_num }}</a>
-        {% else %}
-        <a class="btn btn-outline-info mb-4" href="{{ url_for('main.index', page=page_num) }}">{{ page_num }}</a>
-        {% endif %}
-        {% else %}
-        ...
-        {% endif %}
-        {% endfor %}
     </div>
 </main>
-
 {% endblock %}

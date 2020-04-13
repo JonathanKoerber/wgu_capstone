@@ -1,0 +1,77 @@
+{% extends 'base.html'%}
+
+{% block head %}
+<title xmlns="http://www.w3.org/1999/html">Home Page</title>
+
+<!--<link rel="stylesheet" href="{{url_for('static', filename='style.css') }}"-->
+{% endblock %}
+{% block search %}
+
+<div class="navbar-nav mr-auto align-left">
+    <form class="form-inline" methon="POST" action="{{ url_for('users.search_user') }}">
+        <div class="form-group">
+            <input type="text" class="form-control" name="query" id="query">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block body %}
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-md-8">
+            {% for user in users %}
+            {% if user.id != current_user.id %}
+            <article class="media content-section">
+                <img class="rounded-circle article-img"
+                     src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <a class="mr-2" href="{{ url_for('users.user_posts', username=user.username ) }}">{{
+                            user.username }}</a>
+                    </div>
+                   <a href="{{ url_for('messages.send_message', recipient=user.id) }}">
+                       <img src="{{ url_for('static', filename='profile_pics/' + 'email-outline.svg')}}"></a>
+                    </div>
+            </article>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+
+            {% if current_user.image_file: %}
+            <div class="content-section">
+                <div class="row">
+                    <img class="rounded-circle article-img"
+                         src="{{ url_for('static', filename='profile_pics/' + current_user.image_file)}}"/>
+                    <h3>{{ current_user.username }}</h3>
+                </div>
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('posts.new_post') }}">Create Post</a>
+            </div>
+            {% endif %}
+            <!--create thread-->
+            {% if current_user.is_authenticated %}
+            <div class="content-section">
+                <h3>Build you own community</h3>
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('thread.create_thread') }}">Create Thread</a>
+            </div>
+            {% else %}
+            <div class="content-section">
+                <h3>Loin to build you own community</h3>
+            </div>
+            {% endif %}
+            <div class="content-section">
+                <h3>Thread Topics</h3>
+                <ul class="list-group">
+                    {% for thread in threads %}
+                    <li class="list-group-item list-group-item-light"><a
+                            href="{{ url_for('thread.thread', thread_id=thread.id)}}">{{ thread.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

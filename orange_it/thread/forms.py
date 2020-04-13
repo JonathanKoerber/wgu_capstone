@@ -14,3 +14,10 @@ class ThreadForm(FlaskForm):
         if thread:
             raise ValidationError('That thread title is already taken, Please choose a different one')
 
+class Update_Thread(FlaskForm):
+
+    title = StringField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    submit = SubmitField('Update Tread')
+
+

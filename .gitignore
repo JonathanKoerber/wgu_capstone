@@ -51,3 +51,10 @@ docs/_build/
 
 #ENV Variagles
 dictionary_profile.py
+
+# Whoosh indexes
+whoosh/*
+
+# Site db
+site.db
+

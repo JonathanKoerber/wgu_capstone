@@ -21,6 +21,9 @@ class Config(object):
     #                                                        dictionary_profile.db_profile.get('DB_PASSWORD'),
     #                                                        dictionary_profile.db_profile.get('DB_HOSE'),
     #                                                        dictionary_profile.db_profile.get('DB_DB'))
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    WHOOSH_BASE = 'whoosh'
+
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True

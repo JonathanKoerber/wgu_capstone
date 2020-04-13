@@ -1,0 +1,74 @@
+{% extends 'base.html'%}
+
+{% block head %}
+<title xmlns="http://www.w3.org/1999/html">Home Page</title>
+
+<!--<link rel="stylesheet" href="{{url_for('static', filename='style.css') }}"-->
+{% endblock %}
+{% block search %}
+
+<div class="navbar-nav mr-auto align-left">
+    <form class="form-inline" methon="GET" action="search">
+        <div class="form-group">
+            <input type="text" class="form-control" name="query" id="query">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block body %}
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-md-8">
+            {% for post in messages %}
+            <article class="media content-section">
+                <img class="rounded-circle article-img"
+                     src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <small class="text-muted"><p>From:
+                        <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{
+                            post.author.username }}</a></p>
+                        {{ post.timestamp.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    <h2><a class="article-title" href="{{ url_for('posts.post', post_id=post.id) }}">{{ post.title
+                        }}</a></h2>
+                    <p class="article-content">{{ post.body }}</p>
+                    <div class="divider"></div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+
+            {% if current_user.image_file: %}
+            <div class="content-section">
+                <div class="row">
+                    <img class="rounded-circle article-img"
+                         src="{{ url_for('static', filename='profile_pics/' + current_user.image_file)}}"/>
+                    <h3>{{ current_user.username }}</h3>
+                </div>
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('users.find_user') }}">Send Message</a>
+            </div>
+            {% endif %}
+            <!--create thread-->
+            <div class="content-section">
+                <h3>Build you own community</h3>
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('thread.create_thread') }}">Create Thread</a>
+            </div>
+            <!--           thread section todo error not displaying -->
+            <div class="content-section">
+                <h3>Thread Topics</h3>
+                <ul class="list-group">
+                    {% for thread in threads %}
+                    <li class="list-group-item list-group-item-light"><a
+                            href="{{ url_for('thread.thread', thread_id=thread.id)}}">{{ thread.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

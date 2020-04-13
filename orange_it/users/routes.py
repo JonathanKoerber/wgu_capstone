@@ -2,12 +2,13 @@ from flask import Blueprint
 from flask import render_template, url_for, flash, redirect, request
 from flask_login import login_user, current_user, logout_user, login_required
 from orange_it.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
-                         RequestResetForm, ResetPasswordForm)
+                                   RequestResetForm, ResetPasswordForm)
 from orange_it import db, bcrypt
-from orange_it.models import User, Post
+from orange_it.models import User, Post, Thread
 from orange_it.users.utils import save_picture, send_reset_email
 
 users = Blueprint('users', __name__)
+
 
 @users.route('/register', methods=['GET', 'POST'])
 def register():
@@ -54,7 +55,10 @@ def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
-            picture_file = save_picture(form.picture.data)
+            picture_file = current_user.update_image(form.picture.data)
+            old_image = current_user.image_file
+            if old_image != 'default.svg':
+                current_user.delete_image(old_image)
             current_user.image_file = picture_file
         current_user.username = form.username.data
         current_user.email = form.email.data
@@ -69,12 +73,12 @@ def account():
     return render_template('account.html', title='Account', image_file=image_file, form=form)
 
 
-@users.route('/user/<string:username>')
+@users.route('/user/<string:username>', methods=['POST', 'GET'])
 def user_posts(username):
-    page = request.args.get('page', 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
-    posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('user_posts.html', posts=posts, user=user)
+    posts = Post.query.filter_by(author=user).order_by(Post.date_posted.desc())
+    threads = Thread.query.order_by(Thread.date_created.desc()).all()
+    return render_template('user_posts.html', posts=posts, user=user, threads=threads)
 
 
 @users.route("/reset_password", methods=['GET', 'POST'])
@@ -84,7 +88,6 @@ def reset_request():
     form = RequestResetForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        print(user.id)
         send_reset_email(user)
         flash('An email has been sent with instructions to reset your password.', 'info')
         return redirect(url_for('users.login'))
@@ -96,7 +99,6 @@ def reset_token(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     user = User.verify_reset_token(token)
-
     if user is None:
         flash('That is an invalid or expired token', 'warning')
         return redirect(url_for('users.reset_request'))
@@ -108,3 +110,15 @@ def reset_token(token):
         flash('Your password has been updated! You are now able to log in', 'success')
         return redirect(url_for('users.login'))
     return render_template('auth/reset_token.html', title='Reset Password', form=form)
+
+@users.route('/find_user', methods=['GET', 'POST'])
+@login_required
+def find_user():
+    users = db.session.query(User).order_by(User.username.desc())
+    return render_template('users.html',  users=users)
+
+@users.route('/search_user',methods=['POST', 'GET'])
+@login_required
+def search_user():
+    users = User.query.whoosh_search(request.args.get('query')).all()
+    return render_template('users.html',  users=users)
