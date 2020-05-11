@@ -3,9 +3,10 @@ from flask import render_template, url_for, flash, redirect, request
 from flask_login import login_user, current_user, logout_user, login_required
 from orange_it.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                                    RequestResetForm, ResetPasswordForm)
-from orange_it import db, bcrypt
+from orange_it import db
 from orange_it.models import User, Post, Thread
 from orange_it.users.utils import save_picture, send_reset_email
+import bcrypt
 
 users = Blueprint('users', __name__)
 
@@ -16,7 +17,10 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        salt = bcrypt.gensalt()
+        password = form.password.data.encode('utf_8')
+        hashed_password = bcrypt.hashpw(password, salt)
+        print(hashed_password)
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
@@ -34,7 +38,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        if user and bcrypt.checkpw(form.password.data.encode('utf_8'), user.password):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('main.index'))

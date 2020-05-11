@@ -1,5 +1,4 @@
 from flask import Blueprint, abort
-from sqlalchemy import update
 from flask import render_template, url_for, flash, redirect, request
 from flask_login import login_user, current_user, logout_user, login_required
 from orange_it.thread.forms import ThreadForm, Update_Thread
@@ -21,6 +20,7 @@ def thread(thread_id):
 
 
 @threads.route('/search_thread/<int:thread_id>/', methods=['GET'])
+@login_required
 def search_thread(thread_id):
     thread = Thread.query.get_or_404(thread_id)
     posts = Post.query.whoosh_search(request.args.get('query')).filter_by(thread_id=thread.id).all()
@@ -38,34 +38,39 @@ def create_thread():
         new_thread = Thread(title=form.title. data, description=form.description.data, user_id=current_user.id)
         db.session.add(new_thread)
         db.session.commit()
-        # owner = Owner(id=current_user.id, username=current_user.username, email=current_user.email, password=current_user.password, type='owner')
-        # db.session.add(owner)
-        # db.session.commit()
-        # print(owner.owner)
+
         flash('Your Thread ' + new_thread.title + ' has been created!', 'success')
         return redirect(url_for('thread.thread', thread_id=new_thread.id))
     return render_template('create_thread.html', title='New Thread', form=form, legend="New Thread")
 
 @threads.route('/manage_thread/<int:thread_id>')
+@login_required
 def manage_thread(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc())
-    rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
-    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
-    return render_template('manage_thread.html', title=thread.title, thread=thread, posts=posts,
+    if current_user.has_permission(thread):
+        posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc())
+        rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
+        moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
+        return render_template('manage_thread.html', title=thread.title, thread=thread, posts=posts,
                            rules=rules, moderators= moderators)
-
+    else:
+        abort(403)
+#todo error with all users are added to the moderators card
 @threads.route('/manage_thread/<thread_id>/<user_id>', methods=['POST','GET'])
 @login_required
 def add_moderator(thread_id, user_id):
-
+    cu = db.session.query(Moderator).filter(Moderator.thread_id == thread_id & Moderator.user_id == user_id)
+    print ('found current usser/ moderator')
     thread = Thread.query.get_or_404(thread_id)
+    if current_user.id != thread.user_id:
+        abort(403)
     mod = Moderator(thread_id=thread_id, user_id=user_id)
     db.session.add(mod)
     db.session.commit()
     posts = Post.query.whoosh_search(request.args.get('query')).filter_by(thread_id=thread.id).all()
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
-    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id)
+    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
+
     return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
 
 
@@ -97,7 +102,7 @@ def delete(thread_id, object_id, object_str):
         #needs a redirect to index.html
     posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc())
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
-    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id)
+    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
 
 
@@ -105,8 +110,6 @@ def delete(thread_id, object_id, object_str):
 @login_required
 def update_thread(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    if current_user.id != thread.user_id:
-        abort(403)
     form = Update_Thread()
     if form.validate_on_submit():
         thread.title = form.title.data
@@ -139,7 +142,7 @@ def mod_thread(thread_id):
 
 
 
-@threads.route('/thread/pick_moderator/<int:thread_id>',methods=['POST', 'GET'])
+@threads.route('/thread/<int:thread_id>/search_moderator',methods=['POST', 'GET'])
 @login_required
 def search_mod(thread_id):
     thread = Thread.query.get_or_404(thread_id)

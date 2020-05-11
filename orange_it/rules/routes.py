@@ -18,7 +18,7 @@ def new_rule(thread_id):
         db.session.commit()
         flash('A rule has been created for thread '+thread.title+'.', 'success')
         return redirect(url_for('thread.manage_thread', thread_id=thread.id) )
-    return render_template('new_rule.html', title='Add a New Rule', form=form, legend='New Post')
+    return render_template('new_rule.html', title='Add a New Rule', form=form, legend='Create Rule')
 
 
 @rules.route('/rule/<int:rule_id>')

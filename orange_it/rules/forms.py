@@ -4,6 +4,6 @@ from wtforms.validators import DataRequired
 
 
 class RuleForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
+    title = StringField('Rule', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
     submit = SubmitField('Create Rule')

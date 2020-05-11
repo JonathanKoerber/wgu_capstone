@@ -1,15 +1,12 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from orange_it.config import DevelopmentConfig, Config
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
 import flask_whooshalchemy as wa
-
-
-# todo change db using environ var
+from flask_authorize import Authorize
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -20,11 +17,11 @@ login_manager.login_message_category = 'info'
 mail = Mail()
 
 
-def create_app(config_class=Config):
+
+def create_app(Config):
     app = Flask(__name__)
 
     app.config.from_object(Config)
-    app.config.from_object(DevelopmentConfig)
 
     db.init_app(app)
     #migrate.init_app(app, db)
@@ -40,6 +37,7 @@ def create_app(config_class=Config):
     from orange_it.rules.routes import rules
     from orange_it.thread.routes import threads
     from orange_it.messages.routes import messages
+    from orange_it.templates.errors.routes import error
     app.register_blueprint(users)
     app.register_blueprint(posts)
     app.register_blueprint(main)

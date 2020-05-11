@@ -7,12 +7,17 @@ h1{
     font-family: sans-serif;
     color: pink;
 }h1, h2, h3, h4, h5, h6 {
-  color: #444444;
+  color: #11111;
 }
 .search{
     padding: 0px, 10px, 0px, 10px ;
     height: 10px;
 
+}
+.card-overlay{
+    position: absolute;
+    padding: 10px;
+    background: Pink;
 }
 .bg-steel {
   background-color: #5f788a;
@@ -104,4 +109,11 @@ form-img{
 }
 post_article_nav{
     height: 10px;
+}
+#side-bar{
+    float: right;
+    margin: 5px;
+    height: 400px;
+    max-width: 300px;
+    background: Pink;
 }

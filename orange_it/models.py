@@ -2,10 +2,10 @@ import json
 from time import time
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-
 from orange_it import db, login_manager
 from datetime import datetime
 from flask_login import UserMixin
+from flask_authorize import RestrictionsMixin, AllowancesMixin, PermissionsMixin, OwnerPermissionsMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, TimedSerializer
 import secrets
 import os
@@ -28,7 +28,6 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(120), nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.svg')
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    type=db.Column(db.String(50))
     posts = db.relationship('Post', backref='author', lazy=True)
     comment = db.relationship('Comment', backref='author', lazy=True)
     moderator = db.relationship('Moderator', backref='moderator', lazy=True)
@@ -40,11 +39,6 @@ class User(db.Model, UserMixin):
     last_message_read_time = db.Column(db.DateTime)
     notifications = db.relationship('Notification', backref='user',
                                     lazy='dynamic')
-
-    _mapper_args__ = {
-        'polymorphic_identity': 'user',
-        'polymorphic_on': type
-    }
 
     def new_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
@@ -105,36 +99,28 @@ class User(db.Model, UserMixin):
         db.session.add(vote)
         db.session.commit()
 
-    # todo delete post and comment
-    def delete(self, delete_object):
-        print('delete as user')
-        db.session.delete(delete_object)
+    def comment_vote(self, comment_id, vote):
+        com_vote = CommentVote(user_id=self.id, post_id=comment_id, vote=vote)
+        if CommentVote.query.filter_by(user_id=self.id, post_id=comment_id).first():
+            return
+        db.session.add(com_vote)
+        db.session.commit()
+
+    def has_permission(self, thread):
+        if thread.user_id == self.id:
+            return True
+        for m in thread.moderator:
+            if m.user_id == self.id:
+                return True
+        else:
+            return False
+
+
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
-class Owner(User):
-    __tablename__ = 'owner'
-    id = db.Column(db.Integer, ForeignKey('user.id'), primary_key=True)
 
-    __mapper_args__ = {
-        'polymorphic_identity':'owner'
-    }
-
-    def invite_moderator(self, user_id, thread_id):
-        mod = Moderator(user_id=user_id, thread_id=thread_id)
-        db.session.add(mod)
-        db.session.commit()
-
-    def delete_moderator(self, user_id, thread_id):
-        pass
-
-    # todo needs to override delete
-    def delete(self, delete_object):
-        print('delete as owner')
-
-
-# todo moderator needs to extend owner
 class Moderator(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -142,10 +128,6 @@ class Moderator(db.Model):
 
     def __repr__(self):
         return f"Moderator('{self.id}', '{self.user_id}', '{self.thread_id}')"
-
-    # todo overide delete()
-    def delete(self):
-        print('delete as moderator')
 
 
 class Post(db.Model):
@@ -178,6 +160,7 @@ class Comment(db.Model):
 
 # todo many to many relationship with
 class Thread(db.Model):
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -187,12 +170,6 @@ class Thread(db.Model):
     rule = db.relationship('Rule', backref='rule', lazy=True, cascade="all, delete-orphan")
     posts = db.relationship('Post', backref='posts', lazy=True, cascade="all, delete-orphan")
 
-    def create_thread(self):
-        pass
-
-    def update_thread(self):
-        pass
-
 
 class Rule(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -200,12 +177,6 @@ class Rule(db.Model):
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     thread_id = db.Column(db.Integer, db.ForeignKey('thread.id'), nullable=False)
-
-    def create_rule(self):
-        pass
-
-    def update_rule(self):
-        pass
 
 
 class Vote(db.Model):

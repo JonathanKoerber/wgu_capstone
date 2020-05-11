@@ -82,13 +82,12 @@
                                 <h2><a class="article-title" href="#">{{ comment.title }}</a></h2>
                                 <p class="article-content">{{ comment.content }}</p>
                                 <div class="container row">
-                                    <!--                        <a href="{{current_user.up_vote(post.id)}}">-->
-                                    <a href="{{ url_for('posts.up_vote', post_id=post.id, thread_id='index')}}">
+                                    <a href="{{ url_for('posts.comment_vote', comment_id=comment.id, post_id=post.id, vote='True')}}">
                                         <img src="{{ url_for('static', filename='profile_pics/thumb-up.svg') }}">
                                     </a>
                                     <p class="article-content" class="col-sm-1"> {{ comment.votes | selectattr("vote",
                                         "equalto", True) | list | count }}</p>
-                                    <a href="{{ url_for('posts.down_vote', post_id=post.id, thread_id='index')}}">
+                                    <a href="{{ url_for('posts.comment_vote', comment_id=comment.id, post_id=post.id, vote='False')}}">
                                         <img src="{{ url_for('static', filename='profile_pics/thumb-down.svg') }}"/>
                                     </a>
                                     <p class="article-content" class="col-sm-1">
