@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired
 
 
-class ThreadForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
+class RuleForm(FlaskForm):
+    title = StringField('Rule', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
     submit = SubmitField('Create Rule')

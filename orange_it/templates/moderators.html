@@ -1,0 +1,108 @@
+{% extends 'base.html'%}
+
+{% block head %}
+<title>Home Page</title>
+
+<!--<link rel="stylesheet" href="{{url_for('static', filename='style.css') }}"-->
+{% endblock %}
+{% block search %}
+
+<div class="navbar-nav mr-auto align-left">
+    <!--    todo this search bar dosn't work. Error: TypeError: search_mod() missing 1 required positional argument: 'thread_id' -->
+    <form class="form-inline" methon="POST" action="{{ url_for('thread.search_mod', thread_id=thread.id) }}">
+        <div class="form-group">
+            <input type="text" class="form-control" name="query" id="query">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block body %}
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="container">
+                <h2 class="navbar-brand thread-heading col-md-8">{{ 'Pick a Moderator for '+ thread.title }}</h2>
+            </div>
+            {% for user in users %}
+            {% if user.id != current_user.id %}
+            <article class="media content-section">
+                <img class="rounded-circle article-img"
+                     src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}">
+                <h3><a class="mr-2" href="{{ url_for('users.user_posts', username=user.username) }}">{{
+                    user.username }}</a></h3>
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <a class="btn btn-primary"
+                           href="{{ url_for('thread.add_moderator', thread_id=thread.id, user_id=user.id) }}">Invite
+                            Moderator</a>
+                    </div>
+                </div>
+            </article>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            <!--            todo create a post section -->
+            {% if current_user.image_file: %}
+            <div class="content-section">
+                <div class="row">
+                    <img class="rounded-circle article-img"
+                         src="{{ url_for('static', filename='profile_pics/' + current_user.image_file)}}"/>
+                    <h3>{{ current_user.username }}</h3>
+                </div>
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('posts.new_thread_post', thread_id=thread.id)}}">Create
+                    Post</a>
+            </div>
+            {% endif %}
+            <!-- thread rules             -->
+            <div class="content-section">
+                <h3>{{ thread.title }} </h3>
+                <p class='text-muted'> {{ thread.description }}</p>
+                {% if current_user.id == thread.user_id %}
+                <ul class="list-group">
+                    <li class="list-group-item list-group-item-light"><a class="btn btn-outline-info mb-4"
+                                                                         href="{{ url_for('thread.update_thread', thread_id=thread.id) }}">Update
+                        Thread Fields</a></li>
+                    <li class="list-group-item list-group-item-light"><a class="btn btn-outline-info mb4"
+                                                                         href="{{ url_for('rules.new_rule', thread_id=thread.id) }}">Add
+                        Rule</a></li>
+                </ul>
+                {% endif %}
+                <ul class="list-group">
+                    {% for rule in rules%}
+                    <li class="list-group-item list-group-item-light">
+                        <div class="card-header" role="tab" id="heading + {{ rule.id }}">
+                            <a class="collapsed" data-toggle="collapse" data-parent="#accordionEx" href="#{{ rule.id }}"
+                               aria-expanded="false" aria-controls="{{ rule.id }}">
+                                <h5 class="mb-0">
+                                    {{ rule.title }} <i class="fas fa-angle-down rotate-icon"></i>
+                                </h5>
+                            </a>
+                        </div>
+                        <div id="{{ rule.id }}" class="collapse" role="tabpanel"
+                             aria-labelledby="heading + {{ rule.id }}"
+                             data-parent="#accordionEx">
+                            <div class="card-body">
+                                <p>{{ rule.content }}</p>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!--            todo moderator section -->
+            <div class="content-section">
+                <h3>Moderators</h3>
+                <ul class="list-group">
+                    {% for mod in moderators %}
+                    <li class="list-group-item list-group-item-light">{{mod.username}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

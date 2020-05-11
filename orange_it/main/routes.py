@@ -1,17 +1,26 @@
 
-from flask import render_template, request, Blueprint
+from flask import render_template, url_for, redirect, request, Blueprint, flash
+from orange_it.main.forms import SearchForm
 from orange_it.models import Post
+from orange_it.models import Thread
+import flask_whooshalchemy as wa
 
 main = Blueprint('main', __name__)
 
 
-@main.route('/')
+@main.route('/', methods=['GET', 'POST'])
 def index():
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('index.html', posts=posts)
+    posts = Post.query.order_by(Post.date_posted.desc())
+    threads = Thread.query.order_by(Thread.date_created.desc()).all()
+    return render_template('index.html', posts=posts, threads=threads)
 
+@main.route('/search', methods=['GET', 'POST'])
+def search():
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.whoosh_search(request.args.get('query')).all()
+    threads = Thread.query.order_by(Thread.date_created.desc()).all()
+    return render_template('index.html', posts=posts, threads=threads)
 
 @main.route('/about')
 def about():
-    return '<h1>About Page<h1'
+    return '<h1>About Page<h1>'
