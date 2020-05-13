@@ -19,10 +19,7 @@ class Config(object):
     SECRET_KEY = dictionary_profile.app_key.get('SECRET_KEY')
     # SQLALCHEMY_DATABASE_URI = dictionary_profile.app_key.get('DB_URI')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASEDIR, 'site.db')
-    # SQLALCHEMY_DATABASE_URI = 'mysql://{}:{}@{}/{}'.format(dictionary_profile.db_profile.get('DB_USER_NAME'),
-    #                                                        dictionary_profile.db_profile.get('DB_PASSWORD'),
-    #                                                        dictionary_profile.db_profile.get('DB_HOSE'),
-    #                                                        dictionary_profile.db_profile.get('DB_DB'))
+    # pip
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     WHOOSH_BASE = 'whoosh'
 
