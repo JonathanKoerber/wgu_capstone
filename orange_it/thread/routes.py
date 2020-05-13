@@ -60,7 +60,6 @@ def manage_thread(thread_id):
 @login_required
 def add_moderator(thread_id, user_id):
     cu = db.session.query(Moderator).filter(Moderator.thread_id == thread_id & Moderator.user_id == user_id)
-    print ('found current usser/ moderator')
     thread = Thread.query.get_or_404(thread_id)
     if current_user.id != thread.user_id:
         abort(403)
