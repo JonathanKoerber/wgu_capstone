@@ -40,3 +40,11 @@ class TestingConfig(DevelopmentConfig):
     BCRYPT_LOG_ROUNDS = 4
     TESTING = True
     WTF_CSRE_ENABLE = False
+
+class DeployMentConfig(Config):
+    # 'mysql://b9ddc39b3371a7:7329dc96@us-cdbr-iron-east-05.cleardb.net/heroku_e9df929449c4e73'
+    # db_username = 'b9ddc39b3371a7'
+    # db_password = '7329dc96'
+    # db_host = 'us-cdbr-iron-east-05.cleardb.net'
+    # db_db = 'heroku_e9df929449c4e73'
+    pass
