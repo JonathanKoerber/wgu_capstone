@@ -1,5 +1,5 @@
 alembic==1.4.0
-argcomplete==1.8.1
+argcomplete==1.11.1
 asgiref==3.2.3
 asn1crypto==0.24.0
 attrs==19.3.0
@@ -39,7 +39,6 @@ Flask-User==1.0.2.2
 Flask-WhooshAlchemy==0.56
 Flask-WTF==0.14.2
 get==2019.4.13
-gunicorn==20.0.4
 hidpidaemon==18.4.5
 httplib2==0.11.3
 idna==2.6
