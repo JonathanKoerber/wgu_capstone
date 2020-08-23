@@ -65,6 +65,7 @@ oauthlib==2.1.0
 packaging==20.1
 passlib==1.7.2
 Pillow==7.0.0
+pip-upgrade-outdated==1.5
 pluggy==0.13.1
 post==2019.4.13
 protobuf==3.6.1
