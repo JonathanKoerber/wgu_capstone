@@ -37,7 +37,7 @@ Flask-WhooshAlchemy==0.56
 Flask-WTF==0.14.3
 
 gunicorn==20.0.4
-hidpidaemon==18.4.5
+
 httplib2==0.18.1
 idna==2.10
 image==1.5.32
