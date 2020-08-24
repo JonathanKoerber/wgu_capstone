@@ -109,7 +109,7 @@ sqlparse==0.3.1
 systemd-python==234
 testresources==2.0.1
 toml==0.10.1
-ubuntu-advantage-tools==19.5
+
 
 ufw==0.36
 urllib3==1.25.10
@@ -120,5 +120,5 @@ wcwidth==0.2.5
 Werkzeug==1.0.1
 Whoosh==2.7.4
 WTForms==2.3.3
-xkit==0.0.0
+
 zipp==3.1.0
