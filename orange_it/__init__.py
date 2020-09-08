@@ -37,13 +37,14 @@ def create_app(Config):
     from orange_it.rules.routes import rules
     from orange_it.thread.routes import threads
     from orange_it.messages.routes import messages
-    app.register_blueprint(users)
+
     app.register_blueprint(posts)
     app.register_blueprint(main)
     app.register_blueprint(errors)
     app.register_blueprint(rules)
     app.register_blueprint(threads)
     app.register_blueprint(messages)
+    app.register_blueprint(users)
     wa.whoosh_index(app, Post)
     wa.whoosh_index(app, User)
 
