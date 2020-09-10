@@ -1,6 +1,6 @@
 from flask_login import current_user
-from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
+from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from orange_it.models import User
@@ -12,7 +12,6 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Signup')
-
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:

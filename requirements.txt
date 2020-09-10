@@ -63,8 +63,12 @@ netifaces==0.10.9
 oauthlib==3.1.0
 packaging==20.4
 passlib==1.7.2
+<<<<<<< HEAD
 pbr==5.4.5
 Pillow==7.2.0
+=======
+Pillow==7.0.0
+>>>>>>> master
 pip-upgrade-outdated==1.5
 pluggy==0.13.1
 protobuf==3.13.0
@@ -115,9 +119,15 @@ toml==0.10.1
 urllib3==1.25.1
 
 virtualenv==16.7.9
+<<<<<<< HEAD
 wadllib==1.3.4
 wcwidth==0.2.5
 Werkzeug==1.0.1
+=======
+wadllib==1.3.3
+wcwidth==0.1.8
+werkzeug==0.16.1
+>>>>>>> master
 Whoosh==2.7.4
 WTForms==2.3.3
 wheel==0.35.1

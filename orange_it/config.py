@@ -28,7 +28,6 @@ class Config(object):
     MAIL_USE_TLS = True
 
 
-
 class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
