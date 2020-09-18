@@ -32,7 +32,8 @@ nosetests.xml
 coverage.xml
 
 #vertural env
-venv
+venv/*
+
 # Translations
 *.mo
 
