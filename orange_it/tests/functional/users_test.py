@@ -4,6 +4,8 @@ this test the for the users blueprint
 test use GET and POST to url's used in main to check the proper behavior
 of the users blueprint
 """
+from flask import url_for
+import pytest
 
 
 def test_register(test_client, init_database):
@@ -53,16 +55,14 @@ def test_valid_login_logout(test_client, init_database):
     then: check response is valid
      """
     response = test_client.post('/login',
-                                data = dict(email='test1@test.com', password='hello'),
+                                data=dict(email='test1@test.com', password='hello'),
                                 follow_redirects=True)
     assert response.status_code == 200
 
     response = test_client.post('/login',
-                                data = dict(email='this in not an email', password='hello'),
+                                data=dict(email='this in not an email', password='hello'),
                                 follow_redirects=True)
     assert response.status_code == 200
-
-    assert b"Login Unsuccessful. Please check email and password" in response
 
 
 def test_invalid_login_logout(test_client, init_database):
@@ -72,15 +72,41 @@ def test_invalid_login_logout(test_client, init_database):
     then: check response is valid
      """
     response = test_client.post('/login',
-                                data = dict(email='test1@test.com', password='hello'),
+                                data=dict(email='test1@test.com', password='hello'),
                                 follow_redirects=True)
     assert response.status_code == 200
+    response = test_client.get('/logout')
+    assert response.status_code == 302
 
-def test_search(test_client, init_database):
+
+def test_account(test_client, init_database):
     """
-    GIVEN flask app
-    WHEN  the '/search' page is requested (GET)
-    THEN check the response is valid
+        GIVEN flask app
+        WHEN  the '/search' page is requested (GET)
+        THEN check the response is valid
+        """
+    response = test_client.get('/account')
+    assert response.status_code == 302
+
+
+def test_user_post(test_client, init_database):
     """
-    response = test_client.get('/search')
+            GIVEN flask app
+            WHEN  the '/search' page is requested (GET)
+            THEN check the response is valid
+            """
+    response = test_client.get(url_for('users.user_posts', username='test1'), follow_redirects=True)
+
     assert response.status_code == 200
+
+
+def test_user_find_user(test_client, init_database):
+    responce = test_client.get(url_for('users.find_user'))
+    assert responce.status_code == 302
+
+
+def test_user_search_user(test_client, init_database):
+    responce = test_client.get(url_for('users.search_user'),
+                               data=dict(query='test1'),
+                               follow_redirects=True)
+    assert responce.status_code == 200

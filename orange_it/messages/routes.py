@@ -11,7 +11,6 @@ messages = Blueprint('messages', __name__)
 @messages.route('/send_message/<int:recipient>', methods=['GET', 'POST'])
 @login_required
 def send_message(recipient):
-    print(('send mesage'))
     user = User.query.filter_by(id=recipient).first_or_404()
     form = MessageForm()
     if form.validate_on_submit():

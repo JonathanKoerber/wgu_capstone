@@ -21,11 +21,6 @@ def new_rule(thread_id):
     return render_template('new_rule.html', title='Add a New Rule', form=form, legend='Create Rule')
 
 
-@rules.route('/rule/<int:rule_id>')
-def rule(rule_id):
-    rule = Rule.query.get_or_404(rule_id)
-    return render_template('rule.html', title=rule.title, rule=rule)
-
 
 @rules.route('/rule/<int:rule_id>/update', methods=['GET', 'POST'])
 @login_required
@@ -47,11 +42,11 @@ def update_post(rule_id):
 @rules.route("/rule/<int:rule_id>/delete", methods=['POST'])
 @login_required
 def delete_post(rule_id):
-    post = Rule.query.get_or_404(rule_id)
+    rule = Rule.query.get_or_404(rule_id)
     # todo change current user to thread owner
     if rule.author != current_user:
         abort(403)
-    db.session.delete(post)
+    db.session.delete(rule)
     db.session.commit()
     flash('Your rule has been deleted!', 'success')
     # todo change to go to update thread
