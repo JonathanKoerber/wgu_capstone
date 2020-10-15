@@ -1,5 +1,6 @@
 from flask import Blueprint, abort
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, \
+    redirect, request, current_app
 from flask_login import login_user, current_user, logout_user, login_required
 from orange_it.thread.forms import ThreadForm, Update_Thread
 from orange_it import db, bcrypt
@@ -19,14 +20,19 @@ def thread(thread_id):
                            rules=rules, moderators= moderators)
 
 
-@threads.route('/search_thread/<int:thread_id>/', methods=['GET'])
+@threads.route('/search_thread/<int:thread_id>/', methods=['GET', 'POST'])
 @login_required
 def search_thread(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    posts = Post.query.whoosh_search(request.args.get('query')).filter_by(thread_id=thread.id).all()
+    page = request.args.get('page', 1, type=int)
+    posts, total = Post.search(request.args.get('query'), page, current_app.config["POSTS_PER_PAGE"])
+    filter_post = []
+    for p in posts:
+        if p.thread_id == thread_id:
+            filter_post.append(p)
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
-    return render_template('thread.html', title=thread.title, thread=thread, posts=posts,
+    return render_template('thread.html', title=thread.title, thread=thread, posts=filter_post,
                            rules=rules, moderators=moderators)
 
 
@@ -66,7 +72,9 @@ def add_moderator(thread_id, user_id):
     mod = Moderator(thread_id=thread_id, user_id=user_id)
     db.session.add(mod)
     db.session.commit()
-    posts = Post.query.whoosh_search(request.args.get('query')).filter_by(thread_id=thread.id).all()
+    page = request.args.get('page', 1, type=int)
+    posts, total = Post.search(request.args.get('query'), page,
+                               current_app.config['POSTS_PER_PAGE'])
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
 
@@ -145,6 +153,8 @@ def mod_thread(thread_id):
 @login_required
 def search_mod(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    users = User.query.whoosh_search(request.args.get('query')).all()
+    page = request.args.get('page', 1, type=int)
+    users, total = User.search(request.args.get('query'), page,
+                               current_app.config['POSTS_PER_PAGE'])
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return render_template('moderators.html', title=thread.title, thread=thread, users=users, moderators=moderators)

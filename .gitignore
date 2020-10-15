@@ -57,4 +57,4 @@ whoosh/*
 
 # Site db
 site.db
-
+orange_it/static/profile_pics/*

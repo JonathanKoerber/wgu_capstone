@@ -21,8 +21,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASEDIR, 'site.db')
     # pip
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    WHOOSH_BASE = 'whoosh'
-
+    ELASTICSEARCH_URL = dictionary_profile.ELASTICSEARCH_URL.get('URL')
+    POSTS_PER_PAGE = 20
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True

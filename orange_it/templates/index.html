@@ -6,9 +6,8 @@
 <!--<link rel="stylesheet" href="{{url_for('static', filename='style.css') }}"-->
 {% endblock %}
 {% block search %}
-
 <div class="navbar-nav mr-auto align-left">
-    <form class="form-inline" methon="GET" action="search">
+    <form class="form-inline" method="GET" action="{{ url_for('main.search') }}">
         <div class="form-group">
             <input type="text" class="form-control" name="query" id="query">
         </div>
