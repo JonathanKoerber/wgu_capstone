@@ -62,23 +62,20 @@ def manage_thread(thread_id):
     else:
         abort(403)
 #todo error with all users are added to the moderators card
-@threads.route('/manage_thread/<thread_id>/<user_id>', methods=['POST','GET'])
+@threads.route('/manage_thread/<int:thread_id>/<int:user_id>', methods=['POST','GET'])
 @login_required
 def add_moderator(thread_id, user_id):
-    cu = db.session.query(Moderator).filter(Moderator.thread_id == thread_id & Moderator.user_id == user_id)
     thread = Thread.query.get_or_404(thread_id)
     if current_user.id != thread.user_id:
         abort(403)
     mod = Moderator(thread_id=thread_id, user_id=user_id)
     db.session.add(mod)
     db.session.commit()
-    page = request.args.get('page', 1, type=int)
-    posts, total = Post.search(request.args.get('query'), page,
-                               current_app.config['POSTS_PER_PAGE'])
+    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc())
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
-
-    return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
+    return redirect(url_for('thread.manage_thread', thread_id=thread.id))
+    # return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
 
 
 @threads.route('/manage_thread/<thread_id>/<object_id>/<object_str>/delete', methods=['POST','GET'])
@@ -93,12 +90,14 @@ def delete(thread_id, object_id, object_str):
         post = Post.query.get_or_404(object_id)
         db.session.delete(post)
         db.session.commit()
+
     elif object_str == 'comment':
         comment = Comment.query.get_or_404(object_id)
         db.session.delete(comment)
         db.session.commit()
-    elif object_str == 'moderator':
-        mod = Moderator.query.get_or_404(object_id)
+    elif object_str == 'mod':
+        print('delete mod thread')
+        mod = Moderator.query.filter(Moderator.user_id == object_id).first_or_404()
         db.session.delete(mod)
         db.session.commit()
     elif object_str == 'thread':
@@ -106,12 +105,7 @@ def delete(thread_id, object_id, object_str):
         db.session.delete(thread)
         db.session.commit()
         return redirect(url_for('main.index'))
-        #needs a redirect to index.html
-    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc())
-    rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
-    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
-    return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
-
+    return redirect(url_for('thread.manage_thread', thread_id=thread.id))
 
 @threads.route('/update_thread/<int:thread_id>', methods=['POST', 'GET'])
 @login_required
