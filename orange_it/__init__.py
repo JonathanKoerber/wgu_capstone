@@ -28,7 +28,7 @@ def create_app(Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
-    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']],timeout=30, max_retries=10, retry_on_timeout=True) \
         if app.config['ELASTICSEARCH_URL'] else None
 
     from orange_it.models import Post, User

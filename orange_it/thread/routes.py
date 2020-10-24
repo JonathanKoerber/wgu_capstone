@@ -71,11 +71,7 @@ def add_moderator(thread_id, user_id):
     mod = Moderator(thread_id=thread_id, user_id=user_id)
     db.session.add(mod)
     db.session.commit()
-    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc())
-    rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
-    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return redirect(url_for('thread.manage_thread', thread_id=thread.id))
-    # return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
 
 
 @threads.route('/manage_thread/<thread_id>/<object_id>/<object_str>/delete', methods=['POST','GET'])
