@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
-import flask_whooshalchemy as wa
+from elasticsearch import Elasticsearch
 from flask_authorize import Authorize
 
 db = SQLAlchemy()
@@ -28,6 +28,8 @@ def create_app(Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']],timeout=30, max_retries=10, retry_on_timeout=True) \
+        if app.config['ELASTICSEARCH_URL'] else None
 
     from orange_it.models import Post, User
     from orange_it.users.routes import users
@@ -46,7 +48,5 @@ def create_app(Config):
     app.register_blueprint(threads)
     app.register_blueprint(messages)
     app.register_blueprint(users)
-    wa.whoosh_index(app, Post)
-    wa.whoosh_index(app, User)
 
     return app

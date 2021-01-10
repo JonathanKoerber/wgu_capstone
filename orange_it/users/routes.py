@@ -1,5 +1,5 @@
 from flask import Blueprint
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, current_app
 from flask_login import login_user, current_user, logout_user, login_required
 from orange_it.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm)
 from orange_it import db
@@ -123,5 +123,6 @@ def find_user():
 @users.route('/search_user',methods=['POST', 'GET'])
 @login_required
 def search_user():
-    users = User.query.whoosh_search(request.args.get('query')).all()
+    page = request.args.get('page', 1, type=int)
+    users, total = Post.search(request.args.get('query'), page, current_app.config["POSTS_PER_PAGE"])
     return render_template('users.html',  users=users)

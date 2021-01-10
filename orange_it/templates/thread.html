@@ -6,9 +6,8 @@
 <!--<link rel="stylesheet" href="{{url_for('static', filename='style.css') }}"-->
 {% endblock %}
 {% block search %}
-
 <div class="navbar-nav mr-auto align-left">
-    <form class="form-inline" methon="POST" action="{{ url_for('thread.search_thread', thread_id=thread.id) }}">
+    <form class="form-inline" method="GET" action="{{ url_for('thread.search_thread', thread_id=thread.id) }}">
         <div class="form-group">
             <input type="text" class="form-control" name="query" id="query">
         </div>
@@ -27,6 +26,7 @@
 
             </div>
             {% for post in posts %}
+            {% if post.thread_id == thread.id %}
             <article class="media content-section">
                 <img class="rounded-circle article-img"
                      src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
@@ -55,6 +55,7 @@
                     </div>
                 </div>
             </article>
+            {% endif %}
             {% endfor %}
         </div>
         <div class="col-md-4">
