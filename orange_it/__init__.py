@@ -39,8 +39,9 @@ def create_app(Config):
     from orange_it.rules.routes import rules
     from orange_it.thread.routes import threads
     from orange_it.messages.routes import messages
-
+    from orange_it.templates.errors.routes import error
     app.register_blueprint(posts)
+    app.register_blueprint(users)
     app.register_blueprint(main)
     app.register_blueprint(errors)
     app.register_blueprint(rules)
