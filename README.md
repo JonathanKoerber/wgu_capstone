@@ -25,7 +25,7 @@ app_key = dict({
 
 ELASTICSEARCH_URL=dict({
 'URL':"<location>"
-    # if es instance in on local
+    # if the instance is local
     # 'URL': "http://127.0.0.1:9200"
 })
 ```
