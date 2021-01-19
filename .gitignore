@@ -31,6 +31,9 @@ pip-delete-this-directory.txt
 nosetests.xml
 coverage.xml
 
+#vertural env
+venv/*
+
 # Translations
 *.mo
 
@@ -57,4 +60,5 @@ whoosh/*
 
 # Site db
 site.db
-
+orange_it/static/profile_pics/*
+*.swp
