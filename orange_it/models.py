@@ -13,6 +13,8 @@ import os
 from PIL import Image
 from flask import current_app
 from flask_mail import Message
+import flask_whooshalchemy
+from whoosh.analysis import StemmingAnalyzer
 
 
 class SearchableMixin(object):
@@ -65,6 +67,7 @@ def load_user(user_id_):
 class User(db.Model, UserMixin, SearchableMixin):
     __tablename__='user'
     __searchable__ = ['username']
+    __analyzer__ = StemmingAnalyzer()
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
@@ -82,6 +85,8 @@ class User(db.Model, UserMixin, SearchableMixin):
     last_message_read_time = db.Column(db.DateTime)
     notifications = db.relationship('Notification', backref='user',
                                     lazy='dynamic')
+
+
 
     def new_messages(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
@@ -173,9 +178,11 @@ class Moderator(db.Model):
         return f"Moderator('{self.id}', '{self.user_id}', '{self.thread_id}')"
 
 
-class Post(db.Model, SearchableMixin):
+class Post(db.Model):
+
     __tablename__ = 'post'
     __searchable__ = ['title', 'content']
+    __analyzer__ = StemmingAnalyzer()
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)

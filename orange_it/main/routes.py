@@ -17,12 +17,11 @@ def index():
 @main.route('/search', methods=['GET', 'POST'])
 def search():
     page = request.args.get('page', 1, type=int)
-    posts, total = Post.search(request.args.get('query'), page,
-                               current_app.config['POSTS_PER_PAGE'])
-    next_url = url_for('main.search', q=g.search_form.q.data, page=page + 1) \
-        if total > page * current_app.config['POSTS_PER_PAGE'] else None
-    prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \
-        if page > 1 else None
+
+    num_posts = min(request.args.get('limit', 50), 50)
+    search_str = request.args.get('query', '')
+    posts = Post.query.search(search_str, num_posts)
+
     threads = Thread.query.order_by(Thread.date_created.desc()).all()
     return render_template('index.html', title=('Search'), posts=posts, threads=threads,
                            next_url=next_url, prev_url=prev_url)

@@ -24,12 +24,10 @@ def thread(thread_id):
 @login_required
 def search_thread(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    page = request.args.get('page', 1, type=int)
-    posts, total = Post.search(request.args.get('query'), page, current_app.config["POSTS_PER_PAGE"])
-    filter_post = []
-    for p in posts:
-        if p.thread_id == thread_id:
-            filter_post.append(p)
+    num_posts = min(request.args.get('limit', 50), 50)
+    search_str = request.args.get('query', '')
+    posts = Post.query.search(search_str, num_posts).filter_by(thread_id=thread.id)
+
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return render_template('thread.html', title=thread.title, thread=thread, posts=filter_post,
@@ -44,7 +42,6 @@ def create_thread():
         new_thread = Thread(title=form.title. data, description=form.description.data, user_id=current_user.id)
         db.session.add(new_thread)
         db.session.commit()
-
         flash('Your Thread ' + new_thread.title + ' has been created!', 'success')
         return redirect(url_for('thread.thread', thread_id=new_thread.id))
     return render_template('create_thread.html', title='New Thread', form=form, legend="New Thread")
@@ -65,13 +62,22 @@ def manage_thread(thread_id):
 @threads.route('/manage_thread/<int:thread_id>/<int:user_id>', methods=['POST','GET'])
 @login_required
 def add_moderator(thread_id, user_id):
+
+    #cu = db.session.query(Moderator).filter(Moderator.thread_id == thread_id & Moderator.user_id == user_id)
+
     thread = Thread.query.get_or_404(thread_id)
     if current_user.id != thread.user_id:
         abort(403)
     mod = Moderator(thread_id=thread_id, user_id=user_id)
     db.session.add(mod)
     db.session.commit()
-    return redirect(url_for('thread.manage_thread', thread_id=thread.id))
+
+    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc()).all()
+    rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
+    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
+
+    return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
+
 
 
 @threads.route('/manage_thread/<thread_id>/<object_id>/<object_str>/delete', methods=['POST','GET'])
@@ -92,7 +98,9 @@ def delete(thread_id, object_id, object_str):
         db.session.delete(comment)
         db.session.commit()
     elif object_str == 'mod':
-        print('delete mod thread')
+
+        # todo delete the mod record of thread_id and user_id object string is the user id not mod id
+        #mod = Moderator.query.get_or_404(object_id)
         mod = Moderator.query.filter(Moderator.user_id == object_id).first_or_404()
         db.session.delete(mod)
         db.session.commit()
@@ -101,7 +109,12 @@ def delete(thread_id, object_id, object_str):
         db.session.delete(thread)
         db.session.commit()
         return redirect(url_for('main.index'))
-    return redirect(url_for('thread.manage_thread', thread_id=thread.id))
+
+        #needs a redirect to index.html
+    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc()).all()
+    rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
+    moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
+    return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
 
 @threads.route('/update_thread/<int:thread_id>', methods=['POST', 'GET'])
 @login_required
@@ -143,8 +156,10 @@ def mod_thread(thread_id):
 @login_required
 def search_mod(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    page = request.args.get('page', 1, type=int)
-    users, total = User.search(request.args.get('query'), page,
-                               current_app.config['POSTS_PER_PAGE'])
+
+    num_usr = min(request.args.get('limit', 50), 50)
+    search_str = request.args.get('query', '')
+    users = User.query.search(search_str, num_usr)
+
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return render_template('moderators.html', title=thread.title, thread=thread, users=users, moderators=moderators)

@@ -125,7 +125,7 @@
                     {% for mod in moderators %}
 
                     <li class="list-group-item list-group-item-light">
-                        {{mod.username}}
+                        {{mod.username}} 
                         <span class="badge"><a href="{{ url_for('thread.delete', thread_id=thread.id, object_id=mod.id, object_str='mod') }}"><img src="{{ url_for('static', filename='profile_pics/' + 'delete.svg')}}"></a></span>
                     </li>
                     {% endfor %}
