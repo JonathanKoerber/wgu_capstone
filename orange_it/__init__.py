@@ -5,7 +5,6 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
-import flask_whooshalchemy as wa
 from flask_authorize import Authorize
 
 db = SQLAlchemy()
@@ -28,6 +27,7 @@ def create_app(Config):
     bcrypt.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
+   
 
     from orange_it.models import Post, User
     from orange_it.users.routes import users
@@ -37,14 +37,15 @@ def create_app(Config):
     from orange_it.rules.routes import rules
     from orange_it.thread.routes import threads
     from orange_it.messages.routes import messages
-    app.register_blueprint(users)
+    from orange_it.templates.errors.routes import error
     app.register_blueprint(posts)
+    app.register_blueprint(users)
     app.register_blueprint(main)
     app.register_blueprint(errors)
     app.register_blueprint(rules)
     app.register_blueprint(threads)
     app.register_blueprint(messages)
-    # wa.whoosh_index(app, Post)
-    # wa.whoosh_index(app, User)
+    app.register_blueprint(users)
+
 
     return app

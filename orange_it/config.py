@@ -21,12 +21,11 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASEDIR, 'site.db')
     # pip
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    WHOOSH_BASE = 'whoosh'
-
+    ELASTICSEARCH_URL = dictionary_profile.ELASTICSEARCH_URL.get('URL')
+    POSTS_PER_PAGE = 20
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-
 
 
 class DevelopmentConfig(Config):
@@ -40,3 +39,11 @@ class TestingConfig(DevelopmentConfig):
     BCRYPT_LOG_ROUNDS = 4
     TESTING = True
     WTF_CSRE_ENABLE = False
+
+class DeployMentConfig(Config):
+#    'mysql://b9ddc39b3371a7:7329dc96@us-cdbr-iron-east-05.cleardb.net/heroku_e9df929449c4e73'
+#     db_username = 'b9ddc39b3371a7'
+#     db_password = '7329dc96'
+#     db_host = 'us-cdbr-iron-east-05.cleardb.net'
+#     db_db = 'heroku_e9df929449c4e73'
+    pass

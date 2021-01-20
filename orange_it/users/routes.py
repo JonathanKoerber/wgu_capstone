@@ -1,8 +1,7 @@
 from flask import Blueprint
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, current_app
 from flask_login import login_user, current_user, logout_user, login_required
-from orange_it.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
-                                   RequestResetForm, ResetPasswordForm)
+from orange_it.users.forms import (RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm)
 from orange_it import db
 from orange_it.models import User, Post, Thread
 from orange_it.users.utils import save_picture, send_reset_email
@@ -124,7 +123,9 @@ def find_user():
 @users.route('/search_user',methods=['POST', 'GET'])
 @login_required
 def search_user():
+
     num_usr = min(request.args.get('limit', 50), 50)
     search_str = request.args.get('query', '')
     users = User.query.search(search_str, num_usr)
+
     return render_template('users.html',  users=users)
