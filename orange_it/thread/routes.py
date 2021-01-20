@@ -23,7 +23,9 @@ def thread(thread_id):
 @login_required
 def search_thread(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    posts = Post.query.whoosh_search(request.args.get('query')).filter_by(thread_id=thread.id).all()
+    num_posts = min(request.args.get('limit', 50), 50)
+    search_str = request.args.get('query', '')
+    posts = Post.query.search(search_str, num_posts).filter_by(thread_id=thread.id)
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return render_template('thread.html', title=thread.title, thread=thread, posts=posts,
@@ -38,7 +40,6 @@ def create_thread():
         new_thread = Thread(title=form.title. data, description=form.description.data, user_id=current_user.id)
         db.session.add(new_thread)
         db.session.commit()
-
         flash('Your Thread ' + new_thread.title + ' has been created!', 'success')
         return redirect(url_for('thread.thread', thread_id=new_thread.id))
     return render_template('create_thread.html', title='New Thread', form=form, legend="New Thread")
@@ -59,14 +60,14 @@ def manage_thread(thread_id):
 @threads.route('/manage_thread/<thread_id>/<user_id>', methods=['POST','GET'])
 @login_required
 def add_moderator(thread_id, user_id):
-    cu = db.session.query(Moderator).filter(Moderator.thread_id == thread_id & Moderator.user_id == user_id)
+    #cu = db.session.query(Moderator).filter(Moderator.thread_id == thread_id & Moderator.user_id == user_id)
     thread = Thread.query.get_or_404(thread_id)
     if current_user.id != thread.user_id:
         abort(403)
     mod = Moderator(thread_id=thread_id, user_id=user_id)
     db.session.add(mod)
     db.session.commit()
-    posts = Post.query.whoosh_search(request.args.get('query')).filter_by(thread_id=thread.id).all()
+    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc()).all()
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
 
@@ -89,7 +90,8 @@ def delete(thread_id, object_id, object_str):
         comment = Comment.query.get_or_404(object_id)
         db.session.delete(comment)
         db.session.commit()
-    elif object_str == 'moderator':
+    elif object_str == 'mod':
+        # todo delete the mod record of thread_id and user_id object string is the user id not mod id
         mod = Moderator.query.get_or_404(object_id)
         db.session.delete(mod)
         db.session.commit()
@@ -99,7 +101,7 @@ def delete(thread_id, object_id, object_str):
         db.session.commit()
         return redirect(url_for('main.index'))
         #needs a redirect to index.html
-    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc())
+    posts = Post.query.filter_by(thread_id=thread_id).order_by(Post.date_posted.desc()).all()
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return render_template('manage_thread.html', posts=posts, rules=rules, moderators=moderators, thread=thread, title=thread.title)
@@ -145,6 +147,8 @@ def mod_thread(thread_id):
 @login_required
 def search_mod(thread_id):
     thread = Thread.query.get_or_404(thread_id)
-    users = User.query.whoosh_search(request.args.get('query')).all()
+    num_usr = min(request.args.get('limit', 50), 50)
+    search_str = request.args.get('query', '')
+    users = User.query.search(search_str, num_usr)
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
     return render_template('moderators.html', title=thread.title, thread=thread, users=users, moderators=moderators)

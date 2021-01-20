@@ -44,7 +44,7 @@ def create_app(Config):
     app.register_blueprint(rules)
     app.register_blueprint(threads)
     app.register_blueprint(messages)
-    wa.whoosh_index(app, Post)
-    wa.whoosh_index(app, User)
+    # wa.whoosh_index(app, Post)
+    # wa.whoosh_index(app, User)
 
     return app

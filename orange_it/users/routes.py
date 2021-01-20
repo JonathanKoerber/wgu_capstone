@@ -124,5 +124,7 @@ def find_user():
 @users.route('/search_user',methods=['POST', 'GET'])
 @login_required
 def search_user():
-    users = User.query.whoosh_search(request.args.get('query')).all()
+    num_usr = min(request.args.get('limit', 50), 50)
+    search_str = request.args.get('query', '')
+    users = User.query.search(search_str, num_usr)
     return render_template('users.html',  users=users)

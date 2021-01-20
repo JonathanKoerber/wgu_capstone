@@ -57,6 +57,7 @@ dictionary_profile.py
 
 # Whoosh indexes
 whoosh/*
+.indexes/
 
 # Site db
 site.db
