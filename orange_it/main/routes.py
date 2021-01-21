@@ -23,8 +23,7 @@ def search():
     posts = Post.query.search(search_str, num_posts)
 
     threads = Thread.query.order_by(Thread.date_created.desc()).all()
-    return render_template('index.html', title=('Search'), posts=posts, threads=threads,
-                           next_url=next_url, prev_url=prev_url)
+    return render_template('index.html', title=('Search'), posts=posts, threads=threads)
    # return render_template('index.html', posts=posts, threads=threads)
 
 @main.route('/about')
