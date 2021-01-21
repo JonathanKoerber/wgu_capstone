@@ -22,7 +22,7 @@ def load_user(user_id_):
     return User.query.get(int(user_id_))
 
 
-class User(db.Model, UserMixin, SearchableMixin):
+class User(db.Model, UserMixin):
     __tablename__='user'
     __searchable__ = ['username']
     __analyzer__ = StemmingAnalyzer()
