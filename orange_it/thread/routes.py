@@ -27,10 +27,9 @@ def search_thread(thread_id):
     num_posts = min(request.args.get('limit', 50), 50)
     search_str = request.args.get('query', '')
     posts = Post.query.search(search_str, num_posts).filter_by(thread_id=thread.id)
-
     rules = Rule.query.filter_by(thread_id=thread_id).order_by(Rule.date_created.desc()).all()
     moderators = db.session.query(User).join(Moderator, User.id == Moderator.user_id).filter(Moderator.thread_id==thread.id).all()
-    return render_template('thread.html', title=thread.title, thread=thread, posts=filter_post,
+    return render_template('thread.html', title=thread.title, thread=thread, posts=posts,
                            rules=rules, moderators=moderators)
 
 
