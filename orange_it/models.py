@@ -3,7 +3,6 @@ from time import time
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from orange_it import db, login_manager
-from orange_it.search import add_to_index, remove_from_index, query_index
 from datetime import datetime
 from flask_login import UserMixin
 from flask_authorize import RestrictionsMixin, AllowancesMixin, PermissionsMixin, OwnerPermissionsMixin
